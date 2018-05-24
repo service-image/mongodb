@@ -1,0 +1,96 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "mongodb.fullname" . }}
+  labels:
+    app: {{ template "mongodb.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+    pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
+    build_id: "{{ .Values.CI_BUILD_ID }}"
+    commit_sha: "{{ .Values.CI_COMMIT_SHA }}"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+  template:
+    metadata:
+      annotations:
+      {{- range $key, $value := .Values.deployment.annotations }}
+        {{ $key }}: {{ $value }}
+      {{- end }}
+      labels:
+        app: {{ template "mongodb.name" . }}
+        release: "{{ .Release.Name }}"
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
+        build_id: "{{ .Values.CI_BUILD_ID }}"
+    spec:
+      {{- if .Values.deployment.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.deployment.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.deployment.image.pullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.deployment.image.pullSecrets }}
+        - name: {{ . }}
+      {{- end}}
+      {{- end }}
+      containers:
+      - name: {{ template "mongodb.fullname" . }}
+        image: {{ template "mongodb.image" . }}
+        imagePullPolicy: {{ .Values.deployment.pullPolicy | quote }}
+        env:
+        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "mongodb.fullname" . }}
+              key: mongodb-root-username
+        {{- end }}
+        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "mongodb.fullname" . }}
+              key: mongodb-root-password
+        {{- end }}
+        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        - name: MONGO_INITDB_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "mongodb.fullname" . }}
+              key: mongodb-root-database
+        {{- end }}
+        ports:
+        - name: mongodb
+          containerPort: 27017
+        livenessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+{{ toYaml .Values.deployment.livenessProbe | indent 10 }}
+        readinessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+{{ toYaml .Values.deployment.readinessProbe | indent 10 }}
+        resources:
+{{ toYaml .Values.deployment.resources | indent 10 }}
+        volumeMounts:
+        - name: mongo-persistent-storage
+          mountPath: /data/db
+          readOnly: false
+      volumes:
+      - name: mongo-persistent-storage
+      {{- if .Values.deployment.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ if .Values.deployment.persistence.existingClaim }}{{ .Values.deployment.persistence.existingClaim }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+      {{- else }}
+        hostPath:
+          path: {{ .Values.deployment.persistence.hostPath | quote }}
+      {{- end -}}

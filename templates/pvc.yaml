@@ -1,0 +1,19 @@
+{{ if and .Values.deployment.persistence.enabled (not .Values.deployment.persistence.existingClaim) -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "mongodb.fullname" . }}
+spec:
+  accessModes:
+    - {{ .Values.deployment.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.deployment.persistence.size | quote }}
+{{- if .Values.deployment.persistence.storageClass }}
+{{- if (eq "-" .Values.deployment.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.deployment.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
