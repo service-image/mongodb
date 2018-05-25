@@ -9,6 +9,10 @@ deployment:
   ##
   pullPolicy: IfNotPresent
 
+  affinity: {}
+
+  tolerations: []
+
   ## Optionally specify an array of imagePullSecrets.
   ## Secrets must be manually created in the namespace.
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -24,10 +28,16 @@ deployment:
     repository: mongo
     tag: 3.6.5
 
+  securityContext:
+    runAsUser: 999
+    fsGroup: 999
+    runAsNonRoot: true
+
   env:
     MONGO_INITDB_ROOT_USERNAME: ""
     MONGO_INITDB_ROOT_PASSWORD: ""
     MONGO_INITDB_DATABASE: ""
+    MONGO_REPLICA_SET_NAME: "replica"
 
   ## Configure resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

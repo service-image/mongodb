@@ -26,10 +26,20 @@ spec:
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
         build_id: "{{ .Values.CI_BUILD_ID }}"
     spec:
+      securityContext:
+{{ toYaml .Values.securityContext | indent 8 }}
       {{- if .Values.deployment.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.deployment.nodeSelector | indent 8 }}
       {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
       {{- if .Values.deployment.image.pullSecrets }}
       imagePullSecrets:
       {{- range .Values.deployment.image.pullSecrets }}
@@ -40,6 +50,13 @@ spec:
       - name: {{ template "mongodb.fullname" . }}
         image: {{ template "mongodb.image" . }}
         imagePullPolicy: {{ .Values.deployment.pullPolicy | quote }}
+        command:
+        - mongod
+        args:
+        - --replSet={{ .Values.deployment.env.MONGO_REPLICA_SET_NAME }}
+        - --smallfiles
+        - --noprealloc
+        - --bind_ip_all
         env:
         {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
         - name: MONGO_INITDB_ROOT_USERNAME
