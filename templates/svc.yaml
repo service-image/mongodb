@@ -11,7 +11,8 @@ metadata:
     build_id: "{{ .Values.CI_BUILD_ID }}"
     commit_sha: "{{ .Values.CI_COMMIT_SHA }}"
 spec:
-  type: {{ .Values.service.type }}
+  # type: {{ .Values.service.type }}
+  type: NodePort
   ports:
   - name: mongodb
     port: 27017
@@ -19,6 +20,10 @@ spec:
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
 {{- end }}
+  - name: metrics
+    port: 9090
+    targetPort: metrics
+    nodePort: 30906
   selector:
     app: {{ template "mongodb.name" . }}
     release: "{{ .Release.Name }}"

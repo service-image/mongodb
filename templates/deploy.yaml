@@ -26,8 +26,6 @@ spec:
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
         build_id: "{{ .Values.CI_BUILD_ID }}"
     spec:
-      securityContext:
-{{ toYaml .Values.deployment.securityContext | indent 8 }}
       {{- if .Values.deployment.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.deployment.nodeSelector | indent 8 }}
@@ -103,6 +101,16 @@ spec:
         - name: mongo-persistent-storage
           mountPath: /data/db
           readOnly: false
+      {{ if .Values.metrics.enabled }}
+      - name: metrics
+        image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
+        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        ports:
+        - name: metrics
+          containerPort: 9090
+        resources:
+{{ toYaml .Values.metrics.resources | indent 10 }}
+      {{- end }}
       volumes:
       - name: mongo-persistent-storage
       {{- if .Values.deployment.persistence.enabled }}

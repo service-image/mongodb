@@ -30,11 +30,6 @@ deployment:
     ##
     pullPolicy: IfNotPresent
 
-  securityContext:
-    runAsUser: 999
-    fsGroup: 999
-    runAsNonRoot: true
-
   env:
     MONGO_INITDB_ROOT_USERNAME: ""
     MONGO_INITDB_ROOT_PASSWORD: ""
@@ -99,3 +94,16 @@ service:
   ## Only used if service.type is 'NodePort'
   ##
   # nodePort: 27017
+
+metrics:
+  enabled: true
+  image:
+    repository: batazor/mongodb_exporter
+    tag: latest
+
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+  resources: {}
