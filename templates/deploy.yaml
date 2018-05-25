@@ -27,16 +27,17 @@ spec:
         build_id: "{{ .Values.CI_BUILD_ID }}"
     spec:
       securityContext:
-{{ toYaml .Values.securityContext | indent 8 }}
+{{ toYaml .Values.deployment.securityContext | indent 8 }}
       {{- if .Values.deployment.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.deployment.nodeSelector | indent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
+      {{- with .Values.deployment.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
+    {{- with .Values.deployment.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
@@ -48,8 +49,8 @@ spec:
       {{- end }}
       containers:
       - name: {{ template "mongodb.fullname" . }}
-        image: {{ template "mongodb.image" . }}
-        imagePullPolicy: {{ .Values.deployment.pullPolicy | quote }}
+        image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
+        imagePullPolicy: {{ .Values.deployment.image.pullPolicy | quote }}
         command:
         - mongod
         args:
