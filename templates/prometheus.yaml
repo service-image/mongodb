@@ -3,10 +3,10 @@ kind: Prometheus
 metadata:
   name: prometheus
 spec:
-  serviceAccountName: prometheus
+  # serviceAccountName: prometheus
   serviceMonitorSelector:
     matchLabels:
-      app: "{{ template "mongodb.name" . }}"
+      monitoring: "{{ template "mongodb.fullname" . }}"
   resources:
     requests:
       memory: 400Mi
@@ -24,6 +24,6 @@ spec:
     nodePort: 30905
     port: 9090
     protocol: TCP
-    targetPort: mongodb
+    targetPort: metrics
   selector:
     prometheus: prometheus

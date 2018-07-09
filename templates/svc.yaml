@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
-    app: {{ template "mongodb.name" . }}
+    app: {{ template "mongodb.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -25,5 +25,5 @@ spec:
     targetPort: metrics
     nodePort: 30906
   selector:
-    app: {{ template "mongodb.name" . }}
+    app: "{{ template "mongodb.fullname" . }}"
     release: "{{ .Release.Name }}"

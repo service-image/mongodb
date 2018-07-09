@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
-    app: {{ template "mongodb.name" . }}
+    app: "{{ template "mongodb.fullname" . }}"
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -15,7 +15,7 @@ spec:
   revisionHistoryLimit: 2
   selector:
     matchLabels:
-      app: {{ template "mongodb.name" . }}
+      app: "{{ template "mongodb.fullname" . }}"
   template:
     metadata:
       annotations:
@@ -23,7 +23,7 @@ spec:
         {{ $key }}: {{ $value }}
       {{- end }}
       labels:
-        app: {{ template "mongodb.name" . }}
+        app: "{{ template "mongodb.fullname" . }}"
         release: "{{ .Release.Name }}"
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"

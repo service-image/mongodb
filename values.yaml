@@ -22,7 +22,7 @@ deployment:
 
   image:
     repository: mongo
-    tag: 3.6.5
+    tag: 4.0.0
 
     ## Specify a imagePullPolicy
     ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'

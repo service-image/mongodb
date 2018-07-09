@@ -4,11 +4,11 @@ kind: ServiceMonitor
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
-    app: "{{ template "mongodb.name" . }}"
+    monitoring: "{{ template "mongodb.fullname" . }}"
 spec:
   selector:
     matchLabels:
-      app: "{{ template "mongodb.name" . }}"
+      app: "{{ template "mongodb.fullname" . }}"
   endpoints:
   - port: metrics
     interval: 15s
