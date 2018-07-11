@@ -4,11 +4,13 @@ kind: ServiceMonitor
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
-    monitoring: "{{ template "mongodb.fullname" . }}"
+    app: {{ template "mongodb.fullname" . }}
+    prometheus: kube-prometheus
 spec:
+  jobLabel: {{ template "mongodb.fullname" . }}
   selector:
     matchLabels:
-      app: "{{ template "mongodb.fullname" . }}"
+      prometheus: kube-prometheus
   endpoints:
   - port: metrics
     interval: 15s

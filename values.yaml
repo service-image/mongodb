@@ -88,7 +88,7 @@ deployment:
 
 service:
   ## Kubernetes service type
-  type: ClusterIP
+  type: NodePort
 
   ## Port to expose on each node
   ## Only used if service.type is 'NodePort'

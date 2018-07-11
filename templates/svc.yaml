@@ -7,12 +7,11 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
-    build_id: "{{ .Values.CI_BUILD_ID }}"
-    commit_sha: "{{ .Values.CI_COMMIT_SHA }}"
+    prometheus: kube-prometheus
+  annotations:
+    alpha.monitoring.coreos.com/non-namespaced: "true"
 spec:
-  # type: {{ .Values.service.type }}
-  type: NodePort
+  type: {{ .Values.service.type }}
   ports:
   - name: mongodb
     port: 27017

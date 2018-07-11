@@ -1,29 +1,32 @@
-apiVersion: monitoring.coreos.com/v1
-kind: Prometheus
-metadata:
-  name: prometheus
-spec:
-  # serviceAccountName: prometheus
-  serviceMonitorSelector:
-    matchLabels:
-      monitoring: "{{ template "mongodb.fullname" . }}"
-  resources:
-    requests:
-      memory: 400Mi
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-spec:
-  type: NodePort
-  ports:
-  - name: mongodb
-    nodePort: 30905
-    port: 9090
-    protocol: TCP
-    targetPort: metrics
-  selector:
-    prometheus: prometheus
+# apiVersion: monitoring.coreos.com/v1
+# kind: Prometheus
+# metadata:
+#   name: prometheus
+#   labels:
+#     app: {{ template "mongodb.fullname" . }}
+#     prometheus: {{ template "mongodb.fullname" . }}
+# spec:
+#   serviceAccountName: kube-prometheus
+#   serviceMonitorSelector:
+#     matchLabels:
+#       prometheus: {{ template "mongodb.fullname" . }}
+#   resources:
+#     requests:
+#       memory: 400Mi
+#
+# ---
+#
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: prometheus
+# spec:
+#   type: NodePort
+#   ports:
+#   - name: mongodb
+#     nodePort: 30905
+#     port: 9090
+#     protocol: TCP
+#     targetPort: metrics
+#   selector:
+#     prometheus: prometheus
