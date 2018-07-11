@@ -7,9 +7,6 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    prometheus: kube-prometheus
-  annotations:
-    alpha.monitoring.coreos.com/non-namespaced: "true"
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -19,10 +16,6 @@ spec:
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
 {{- end }}
-  - name: metrics
-    port: 9090
-    targetPort: metrics
-    nodePort: 30906
   selector:
     app: "{{ template "mongodb.fullname" . }}"
     release: "{{ .Release.Name }}"
