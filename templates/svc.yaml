@@ -23,8 +23,10 @@ spec:
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
 {{- end }}
-  - name: metrics
+  - name: exporter
+    protocol: TCP
     port: 9090
+    targetPort: exporter
   selector:
     app: "{{ template "mongodb.fullname" . }}"
     release: "{{ .Release.Name }}"

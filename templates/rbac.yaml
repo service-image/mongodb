@@ -82,7 +82,7 @@ roleRef:
 #   resources:
 #   - configmaps
 #   verbs: ["get"]
-# - nonResourceURLs: ["/metrics"]
+# - nonResourceURLs: ["/exporter"]
 #   verbs: ["get"]
 #
 # ---

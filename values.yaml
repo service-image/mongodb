@@ -136,7 +136,7 @@ prometheus:
       tag: latest
       pullPolicy: IfNotPresent
 
-    ## Port Prometheus scrapes for metrics
+    ## Port Prometheus scrapes for exporter
     port: 9090
 
     ## Allow overriding of container resources

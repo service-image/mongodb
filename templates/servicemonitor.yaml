@@ -14,7 +14,7 @@ spec:
       app: {{ template "mongodb.name" . }}
       release: {{ .Release.Name }}
   endpoints:
-  - port: metrics
+  - port: exporter
     interval: {{ .Values.prometheus.operator.serviceMonitor.interval }}
   namespaceSelector:
     any: true

@@ -114,11 +114,11 @@ spec:
           mountPath: /data/db
           readOnly: false
       {{ if .Values.prometheus.exporter.enabled }}
-      - name: metrics
+      - name: exporter
         image: {{ .Values.prometheus.exporter.image.repository }}:{{ .Values.prometheus.exporter.image.tag }}
         imagePullPolicy: {{ .Values.prometheus.exporter.image.pullPolicy }}
         ports:
-        - name: metrics
+        - name: exporter
           containerPort: 9090
         resources:
 {{ toYaml .Values.prometheus.exporter.resources | indent 12 }}
