@@ -165,7 +165,7 @@ prometheus:
       labels: {}
 
     serviceMonitor:
-      ## Interval at which Prometheus scrapes RabbitMQ Exporter
+      ## Interval at which Prometheus scrapes MongoDB Exporter
       interval: 10s
 
       # Namespace Prometheus is installed in
