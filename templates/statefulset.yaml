@@ -3,7 +3,7 @@ kind: StatefulSet
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
-    app: "{{ template "mongodb.fullname" . }}"
+    app: {{ template "mongodb.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -18,7 +18,7 @@ spec:
     type: {{ .Values.statefulset.updateStrategy }}
   selector:
     matchLabels:
-      app: "{{ template "mongodb.fullname" . }}"
+      app: {{ template "mongodb.name" . }}
   template:
     metadata:
       annotations:
@@ -30,7 +30,7 @@ spec:
         prometheus.io/port: {{ .Values.prometheus.exporter.port | quote }}
       {{- end }}
       labels:
-        app: "{{ template "mongodb.fullname" . }}"
+        app: {{ template "mongodb.name" . }}
         release: "{{ .Release.Name }}"
         chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
