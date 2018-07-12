@@ -1,47 +1,103 @@
+{{- if .Values.serviceAccount.create }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: prometheus-mongo
+  labels:
+    app: {{ template "mongodb.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
+  name: {{ template "mongodb.serviceAccountName" . }}
+{{- end }}
 
 ---
+
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  labels:
+    app: {{ template "mongodb.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
+  name: {{ template "mongodb.fullname" . }}
+rules:
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    verbs: ["get"]
+{{- end }}
+
+---
+
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  labels:
+    app: {{ template "mongodb.name" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
+  name: {{ template "mongodb.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "mongodb.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "mongodb.fullname" . }}
+{{- end }}
+
+---
+
 #
 # Create a role, `pod-reader`, that can list pods and
 # bind the default service account in the `default` namespace
 # to that role.
 #
 
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRole
-metadata:
-  name: prometheus-mongo
-rules:
-- apiGroups: [""]
-  resources:
-  - nodes
-  - services
-  - endpoints
-  - pods
-  verbs: ["get", "list", "watch"]
-- apiGroups: [""]
-  resources:
-  - configmaps
-  verbs: ["get"]
-- nonResourceURLs: ["/metrics"]
-  verbs: ["get"]
-
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: prometheus-mongo
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: prometheus-mongo
-subjects:
-- kind: Group
-  name: system:serviceaccounts:{{ .Release.Namespace }}
-  apiGroup: rbac.authorization.k8s.io
-# - kind: ServiceAccount
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRole
+# metadata:
 #   name: prometheus-mongo
-#   namespace: default
+# rules:
+# - apiGroups: [""]
+#   resources:
+#   - nodes
+#   - services
+#   - endpoints
+#   - pods
+#   verbs: ["get", "list", "watch"]
+# - apiGroups: [""]
+#   resources:
+#   - configmaps
+#   verbs: ["get"]
+# - nonResourceURLs: ["/metrics"]
+#   verbs: ["get"]
+#
+# ---
+# apiVersion: rbac.authorization.k8s.io/v1beta1
+# kind: ClusterRoleBinding
+# metadata:
+#   name: prometheus-mongo
+# roleRef:
+#   apiGroup: rbac.authorization.k8s.io
+#   kind: ClusterRole
+#   name: prometheus-mongo
+# subjects:
+# - kind: Group
+#   name: system:serviceaccounts:{{ .Release.Namespace }}
+#   apiGroup: rbac.authorization.k8s.io
+# # - kind: ServiceAccount
+# #   name: prometheus-mongo
+# #   namespace: default

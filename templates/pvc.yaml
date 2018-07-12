@@ -1,19 +1,19 @@
-{{ if and .Values.deployment.persistence.enabled (not .Values.deployment.persistence.existingClaim) -}}
+{{ if and .Values.statefulset.persistence.enabled (not .Values.statefulset.persistence.existingClaim) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "mongodb.fullname" . }}
 spec:
   accessModes:
-    - {{ .Values.deployment.persistence.accessMode | quote }}
+    - {{ .Values.statefulset.persistence.accessMode | quote }}
   resources:
     requests:
-      storage: {{ .Values.deployment.persistence.size | quote }}
-{{- if .Values.deployment.persistence.storageClass }}
-{{- if (eq "-" .Values.deployment.persistence.storageClass) }}
+      storage: {{ .Values.statefulset.persistence.size | quote }}
+{{- if .Values.statefulset.persistence.storageClass }}
+{{- if (eq "-" .Values.statefulset.persistence.storageClass) }}
   storageClassName: ""
 {{- else }}
-  storageClassName: "{{ .Values.deployment.persistence.storageClass }}"
+  storageClassName: "{{ .Values.statefulset.persistence.storageClass }}"
 {{- end }}
 {{- end }}
 {{- end }}

@@ -1,44 +1,21 @@
-{{ if .Values.metrics.enabled -}}
+{{ if and .Values.prometheus.exporter.enabled .Values.prometheus.operator.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ template "mongodb.fullname" . }}
-  namespace: monitoring
+  namespace: {{ .Values.prometheus.operator.serviceMonitor.namespace }}
   labels:
-    app: {{ template "mongodb.fullname" . }}
-    prometheus: kube-prometheus
+{{- if .Values.prometheus.operator.serviceMonitor.selector }}
+{{ toYaml .Values.prometheus.operator.serviceMonitor.selector | indent 4 }}
+{{- end }}
 spec:
-  jobLabel: {{ template "mongodb.fullname" . }}
   selector:
     matchLabels:
-      prometheus: kube-prometheus
+      app: {{ template "mongodb.name" . }}
+      release: {{ .Release.Name }}
   endpoints:
   - port: metrics
-    interval: 15s
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ template "mongodb.fullname" . }}
-  namespace: monitoring
-  labels:
-    app: {{ template "mongodb.fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
-    prometheus: kube-prometheus
-  annotations:
-    alpha.monitoring.coreos.com/non-namespaced: "true"
-spec:
-  type: {{ .Values.service.type }}
-  ports:
-  - name: metrics
-    port: 9090
-    nodePort: 30906
-  selector:
-    app: "{{ template "mongodb.fullname" . }}"
-    release: "{{ .Release.Name }}"
-
-{{- end }}
+    interval: {{ .Values.prometheus.operator.serviceMonitor.interval }}
+  namespaceSelector:
+    any: true
+{{ end }}

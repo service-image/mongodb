@@ -1,5 +1,5 @@
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1beta1
+kind: StatefulSet
 metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
@@ -7,20 +7,27 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
-    pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
-    build_id: "{{ .Values.CI_BUILD_ID }}"
-    commit_sha: "{{ .Values.CI_COMMIT_SHA }}"
+{{- if .Values.extraLabels }}
+{{ toYaml .Values.extraLabels | indent 4 }}
+{{- end }}
 spec:
-  replicas: 1
+  serviceName: {{ template "mongodb.fullname" . }}
+  replicas: {{ .Values.statefulset.replicaCount }}
   revisionHistoryLimit: 2
+  updateStrategy:
+    type: {{ .Values.statefulset.updateStrategy }}
   selector:
     matchLabels:
       app: "{{ template "mongodb.fullname" . }}"
   template:
     metadata:
       annotations:
-      {{- range $key, $value := .Values.deployment.annotations }}
+      {{- range $key, $value := .Values.statefulset.annotations }}
         {{ $key }}: {{ $value }}
+      {{- end }}
+      {{- if and .Values.prometheus.exporter.enabled  (not .Values.prometheus.operator.enabled) }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: {{ .Values.prometheus.exporter.port | quote }}
       {{- end }}
       labels:
         app: "{{ template "mongodb.fullname" . }}"
@@ -29,52 +36,54 @@ spec:
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
         build_id: "{{ .Values.CI_BUILD_ID }}"
     spec:
-      {{- if .Values.deployment.nodeSelector }}
+      serviceAccountName: {{ template "mongodb.serviceAccountName" . }}
+      terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}
+      {{- if .Values.statefulset.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.deployment.nodeSelector | indent 8 }}
+{{ toYaml .Values.statefulset.nodeSelector | indent 8 }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
-      {{- with .Values.deployment.affinity }}
+      terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}
+      {{- with .Values.statefulset.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.deployment.tolerations }}
+    {{- with .Values.statefulset.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
-      {{- if .Values.deployment.image.pullSecrets }}
+      {{- if .Values.statefulset.image.pullSecrets }}
       imagePullSecrets:
-      {{- range .Values.deployment.image.pullSecrets }}
+      {{- range .Values.statefulset.image.pullSecrets }}
         - name: {{ . }}
       {{- end}}
       {{- end }}
       containers:
       - name: {{ template "mongodb.fullname" . }}
-        image: "{{ .Values.deployment.image.repository }}:{{ .Values.deployment.image.tag }}"
-        imagePullPolicy: {{ .Values.deployment.image.pullPolicy | quote }}
+        image: "{{ .Values.statefulset.image.repository }}:{{ .Values.statefulset.image.tag }}"
+        imagePullPolicy: {{ .Values.statefulset.image.pullPolicy | quote }}
         command:
         - mongod
         args:
-        - --replSet={{ .Values.deployment.env.MONGO_REPLICA_SET_NAME }}
+        - --replSet={{ .Values.statefulset.env.MONGO_REPLICA_SET_NAME }}
         - --smallfiles
         - --noprealloc
         - --bind_ip_all
         env:
-        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        {{- if .Values.statefulset.env.MONGO_INITDB_ROOT_PASSWORD }}
         - name: MONGO_INITDB_ROOT_USERNAME
           valueFrom:
             secretKeyRef:
               name: {{ template "mongodb.fullname" . }}
               key: mongodb-root-username
         {{- end }}
-        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        {{- if .Values.statefulset.env.MONGO_INITDB_ROOT_PASSWORD }}
         - name: MONGO_INITDB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: {{ template "mongodb.fullname" . }}
               key: mongodb-root-password
         {{- end }}
-        {{- if .Values.deployment.env.MONGO_INITDB_ROOT_PASSWORD }}
+        {{- if .Values.statefulset.env.MONGO_INITDB_ROOT_PASSWORD }}
         - name: MONGO_INITDB_DATABASE
           valueFrom:
             secretKeyRef:
@@ -90,36 +99,36 @@ spec:
             - mongo
             - --eval
             - "db.adminCommand('ping')"
-{{ toYaml .Values.deployment.livenessProbe | indent 10 }}
+{{ toYaml .Values.statefulset.livenessProbe | indent 10 }}
         readinessProbe:
           exec:
             command:
             - mongo
             - --eval
             - "db.adminCommand('ping')"
-{{ toYaml .Values.deployment.readinessProbe | indent 10 }}
+{{ toYaml .Values.statefulset.readinessProbe | indent 10 }}
         resources:
-{{ toYaml .Values.deployment.resources | indent 10 }}
+{{ toYaml .Values.statefulset.resources | indent 10 }}
         volumeMounts:
         - name: mongo-persistent-storage
           mountPath: /data/db
           readOnly: false
-      {{ if .Values.metrics.enabled }}
+      {{ if .Values.prometheus.exporter.enabled }}
       - name: metrics
-        image: "{{ .Values.metrics.image.repository }}:{{ .Values.metrics.image.tag }}"
-        imagePullPolicy: {{ .Values.metrics.image.pullPolicy | quote }}
+        image: {{ .Values.prometheus.exporter.image.repository }}:{{ .Values.prometheus.exporter.image.tag }}
+        imagePullPolicy: {{ .Values.prometheus.exporter.image.pullPolicy }}
         ports:
         - name: metrics
           containerPort: 9090
         resources:
-{{ toYaml .Values.metrics.resources | indent 10 }}
+{{ toYaml .Values.prometheus.exporter.resources | indent 12 }}
       {{- end }}
       volumes:
       - name: mongo-persistent-storage
-      {{- if .Values.deployment.persistence.enabled }}
+      {{- if .Values.statefulset.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ if .Values.deployment.persistence.existingClaim }}{{ .Values.deployment.persistence.existingClaim }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
+          claimName: {{ if .Values.statefulset.persistence.existingClaim }}{{ .Values.statefulset.persistence.existingClaim }}{{- else }}{{ template "mongodb.fullname" . }}{{- end }}
       {{- else }}
         hostPath:
-          path: {{ .Values.deployment.persistence.hostPath | quote }}
+          path: {{ .Values.statefulset.persistence.hostPath | quote }}
       {{- end -}}
