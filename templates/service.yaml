@@ -7,10 +7,10 @@ metadata:
 {{- end }}
   name: {{ template "mongodb.fullname" . }}
   labels:
-    app: {{ template "mongodb.fullname" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    app: {{ template "mongodb.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
 {{- if .Values.extraLabels }}
 {{ toYaml .Values.extraLabels | indent 4 }}
 {{- end }}
