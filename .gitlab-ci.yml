@@ -17,7 +17,7 @@ chart:
     - helm init -c
 
   # update charts
-    - git clone https://$GITHUB_USER:$GITHUB_PASSWORD@github.com/micro-company/charts.git
+    - git clone https://$GITHUB_USER:$GITHUB_PASSWORD@$GITHUB_REPOSITORY_URL
     - helm package $HELM_PATH
     - mv *.tgz charts/docs
     - helm repo index charts/docs
