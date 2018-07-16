@@ -96,20 +96,20 @@ spec:
         - name: mongodb
           protocol: TCP
           containerPort: 27017
-#         livenessProbe:
-#           exec:
-#             command:
-#             - mongo
-#             - --eval
-#             - "db.adminCommand('ping')"
-# {{ toYaml .Values.statefulset.livenessProbe | indent 10 }}
-#         readinessProbe:
-#           exec:
-#             command:
-#             - mongo
-#             - --eval
-#             - "db.adminCommand('ping')"
-# {{ toYaml .Values.statefulset.readinessProbe | indent 10 }}
+        livenessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+{{ toYaml .Values.statefulset.livenessProbe | indent 10 }}
+        readinessProbe:
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+{{ toYaml .Values.statefulset.readinessProbe | indent 10 }}
         resources:
 {{ toYaml .Values.statefulset.resources | indent 10 }}
         volumeMounts:
