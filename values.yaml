@@ -39,6 +39,15 @@ configmap:
 #    keyFile: /opt/bitnami/mongodb/conf/keyfile
 
 statefulset:
+  podDisruptionBudget: {}
+    # maxUnavailable: 1
+    # minAvailable: 2
+
+  securityContext:
+    runAsUser: 999
+    fsGroup: 999
+    runAsNonRoot: true
+
   ## Duration in seconds the pod needs to terminate gracefully
   terminationGracePeriodSeconds: 10
 
@@ -173,12 +182,14 @@ prometheus:
     enabled: true
     env: {}
     image:
-      repository: batazor/mongodb_exporter
-      tag: latest
+      repository: batazor/percona-mongodb_exporter
+      tag: 0.6.1.1
       pullPolicy: IfNotPresent
 
-    ## Port Prometheus scrapes for exporter
+    ## Port Prometheus scrapes for metrics
     port: 9090
+
+    path: "/metrics"
 
     ## Allow overriding of container resources
     resources: {}

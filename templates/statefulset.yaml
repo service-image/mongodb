@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1beta2
 kind: StatefulSet
 metadata:
   name: {{ template "mongodb.fullname" . }}
@@ -29,6 +29,7 @@ spec:
 {{- if and .Values.prometheus.exporter.enabled  (not .Values.prometheus.operator.enabled) }}
         prometheus.io/scrape: "true"
         prometheus.io/port: {{ .Values.prometheus.exporter.port | quote }}
+        prometheus.io/path: {{ .Values.prometheus.exporter.path | quote }}
 {{- end }}
       labels:
         app: {{ template "mongodb.name" . }}
@@ -40,6 +41,8 @@ spec:
       serviceAccountName: {{ template "mongodb.serviceAccountName" . }}
       terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}
       {{- if .Values.statefulset.nodeSelector }}
+      securityContext:
+        {{ toYaml .Values.securityContext | indent 8 }}
       nodeSelector:
 {{ toYaml .Values.statefulset.nodeSelector | indent 8 }}
       {{- end }}
