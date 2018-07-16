@@ -1,6 +1,6 @@
 ## Add additional labels to all resources
 ##
-extraLabels: {}
+extraLabels:
 
 # Entries for the MongoDB config file
 configmap:
@@ -137,7 +137,7 @@ statefulset:
   ## Configure extra options for liveness and readiness probes
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
   livenessProbe:
-    initialDelaySeconds: 30
+    initialDelaySeconds: 45
     periodSeconds: 10
     timeoutSeconds: 5
     failureThreshold: 6
