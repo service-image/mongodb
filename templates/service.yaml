@@ -19,7 +19,7 @@ spec:
   ports:
   - name: mongodb
     port: 27017
-    targetPort: http
+    targetPort: mongodb
 {{- if .Values.service.nodePort }}
     nodePort: {{ .Values.service.nodePort }}
 {{- end }}
