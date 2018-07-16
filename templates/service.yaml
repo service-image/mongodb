@@ -8,7 +8,7 @@ metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
     app: {{ template "mongodb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    chart: {{ template "mongodb.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- if .Values.extraLabels }}

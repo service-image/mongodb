@@ -2,6 +2,42 @@
 ##
 extraLabels: {}
 
+# Entries for the MongoDB config file
+configmap:
+#  # Where and how to store data.
+#  storage:
+#    dbPath: /opt/bitnami/mongodb/data/db
+#    journal:
+#      enabled: true
+#    #engine:
+#    #wiredTiger:
+#  # where to write logging data.
+#  systemLog:
+#    destination: file
+#    logAppend: true
+#    path: /opt/bitnami/mongodb/logs/mongodb.log
+#  # network interfaces
+#  net:
+#    port: 27017
+#    bindIp: 0.0.0.0
+#    unixDomainSocket:
+#      enabled: true
+#      pathPrefix: /opt/bitnami/mongodb/tmp
+#  # replica set options
+#  replication:
+#    replSetName: replicaset
+#  # process management options
+#  processManagement:
+#     fork: false
+#     pidFilePath: /opt/bitnami/mongodb/tmp/mongodb.pid
+#  # set parameter options
+#  setParameter:
+#     enableLocalhostAuthBypass: true
+#  # security options
+#  security:
+#    authorization: enabled
+#    keyFile: /opt/bitnami/mongodb/conf/keyfile
+
 statefulset:
   ## Duration in seconds the pod needs to terminate gracefully
   terminationGracePeriodSeconds: 10
@@ -20,8 +56,12 @@ statefulset:
 
   terminationGracePeriodSeconds: 30
 
+  ## Affinity
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   affinity: {}
 
+  ## Tolerations
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
   tolerations: []
 
   ## Optionally specify an array of imagePullSecrets.
@@ -80,7 +120,8 @@ statefulset:
     ##   GKE, AWS & OpenStack)
     ##
     # storageClass: "-"
-    accessMode: ReadWriteOnce
+    accessModes:
+    - ReadWriteOnce
     size: 8Gi
     hostPath: /data/mongo
 

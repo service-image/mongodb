@@ -5,7 +5,9 @@ metadata:
   name: {{ template "mongodb.fullname" . }}
 spec:
   accessModes:
-    - {{ .Values.statefulset.persistence.accessMode | quote }}
+  {{- range .Values.statefulset.persistence.accessModes }}
+    - {{ . | quote }}
+  {{- end }}
   resources:
     requests:
       storage: {{ .Values.statefulset.persistence.size | quote }}

@@ -4,7 +4,7 @@ metadata:
   name: {{ template "mongodb.fullname" . }}
   labels:
     app: {{ template "mongodb.name" . }}
-    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    chart: {{ template "mongodb.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 {{- if .Values.extraLabels }}
@@ -19,6 +19,7 @@ spec:
   selector:
     matchLabels:
       app: {{ template "mongodb.name" . }}
+      release: {{ .Release.Name }}
   template:
     metadata:
       annotations:
@@ -32,7 +33,7 @@ spec:
       labels:
         app: {{ template "mongodb.name" . }}
         release: "{{ .Release.Name }}"
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+        chart: {{ template "mongodb.chart" . }}
         pipeline_id: "{{ .Values.CI_PIPELINE_ID }}"
         build_id: "{{ .Values.CI_BUILD_ID }}"
     spec:
@@ -113,6 +114,11 @@ spec:
         - name: mongo-persistent-storage
           mountPath: /data/db
           readOnly: false
+        {{- if .Values.configmap }}
+        - name: config
+          mountPath: /opt/bitnami/mongodb/conf/mongodb.conf
+          subPath: mongodb.conf
+        {{- end }}
       {{ if .Values.prometheus.exporter.enabled }}
       - name: {{ .Chart.Name }}-exporter
         image: {{ .Values.prometheus.exporter.image.repository }}:{{ .Values.prometheus.exporter.image.tag }}
@@ -133,3 +139,8 @@ spec:
         hostPath:
           path: {{ .Values.statefulset.persistence.hostPath | quote }}
       {{- end -}}
+      {{- if .Values.configmap }}
+      - name: config
+        configMap:
+          name: {{ template "mongodb.fullname" . }}
+      {{- end }}

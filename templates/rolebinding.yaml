@@ -4,7 +4,7 @@ kind: RoleBinding
 metadata:
   labels:
     app: {{ template "mongodb.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    chart: {{ template "mongodb.chart" . }}
     release: {{ .Release.Name | quote }}
     heritage: {{ .Release.Service | quote }}
 {{- if .Values.extraLabels }}
