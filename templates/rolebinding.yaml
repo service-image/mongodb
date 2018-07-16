@@ -13,7 +13,7 @@ metadata:
   name: {{ template "mongodb.fullname" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "mongodb.serviceAccountName" . }}
+    name: {{ template "mongodb.fullname" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
