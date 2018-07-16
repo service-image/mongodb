@@ -182,8 +182,8 @@ prometheus:
     enabled: true
     env: {}
     image:
-      repository: batazor/percona-mongodb_exporter
-      tag: 0.6.1.1
+      repository: batazor/mongodb_exporter
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## Port Prometheus scrapes for metrics
