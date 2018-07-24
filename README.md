@@ -14,5 +14,5 @@ helm repo add micro-company https://micro-company.github.io/charts/
 helm repo update
 
 # Install project
-helm install micro-company/mongodb
+helm install --name mongodb micro-company/mongodb
 ```
