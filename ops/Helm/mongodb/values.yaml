@@ -132,6 +132,8 @@ statefulset:
     accessModes:
     - ReadWriteOnce
     size: 8Gi
+
+    # if disabled persistence then use hostPath
     hostPath: /data/mongo
 
   ## Configure extra options for liveness and readiness probes
