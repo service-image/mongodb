@@ -4,6 +4,9 @@ before_script:
 services:
   - docker:dind
 
+variables:
+  HELM_PATH: ops/Helm/$CI_PROJECT_NAME
+
 chart:
   script:
   # Install tool
