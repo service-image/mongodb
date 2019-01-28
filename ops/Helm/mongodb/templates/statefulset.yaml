@@ -58,6 +58,10 @@ spec:
         - name: {{ . }}
       {{- end}}
       {{- end }}
+      dnsConfig:
+        options:
+          - name: ndots
+            value: "1"
       containers:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.statefulset.image.repository }}:{{ .Values.statefulset.image.tag }}"
